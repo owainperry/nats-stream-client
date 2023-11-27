@@ -65,6 +65,7 @@ func (n *NatsStreamClient) appendSubjectToStream(ctx context.Context, js jetstre
 	config := info.Config
 
 	exsits := n.subjectExists(config, subject)
+	log.Infof("subject %s exists: %t", subject, exsits)
 	newSubjects := append(config.Subjects, subject)
 	if !exsits {
 		cfg := jetstream.StreamConfig{
@@ -117,7 +118,7 @@ func (n *NatsStreamClient) createStream(ctx context.Context, subjects []string) 
 			log.Error(err)
 			return err
 		}
-		log.Debug("created the stream")
+		log.Info("created the stream")
 	} else {
 		for _, v := range subjects {
 			n.appendSubjectToStream(ctx, n.JS, n.streamName, v)
@@ -141,6 +142,7 @@ func (n *NatsStreamClient) Publish(ctx context.Context, subject string, payload 
 		log.Error(err)
 		return err
 	}
+	log.Infof("Published to [%s]: []'%s']", uniqueSubjects[0], payload)
 	n.JS.Publish(ctx, uniqueSubjects[0], payload)
 
 	if err := n.Connection.LastError(); err != nil {
