@@ -172,8 +172,16 @@ func (n *NatsStreamClient) Get(ctx context.Context, subject string, numberOfMess
 
 	rtn := [][]byte{}
 
-	filter := n.convertSubjectsToUnique([]string{subject})[0]
+	uniqueSubjects := n.convertSubjectsToUnique([]string{subject})
+	filter := uniqueSubjects[0]
 	log.Infof("filter: %s", filter)
+
+	err := n.createStream(ctx, uniqueSubjects)
+	if err != nil {
+		log.Error(err)
+		return rtn, err
+	}
+
 	c1, err := n.JS.CreateOrUpdateConsumer(ctx, n.streamName, jetstream.ConsumerConfig{
 		Name:          consumerName,
 		FilterSubject: filter,
