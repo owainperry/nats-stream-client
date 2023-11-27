@@ -26,8 +26,8 @@ func NatsStreamClientFactory(natsUri string, streamName string) (NatsStreamClien
 		log.Fatal(err)
 		return rtn, err
 	}
-	defer nc.Close()
-	defer nc.Drain()
+	// defer nc.Close()
+	// defer nc.Drain()
 
 	js, err := jetstream.New(nc)
 	if err != nil {
