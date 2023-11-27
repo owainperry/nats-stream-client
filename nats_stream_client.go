@@ -146,14 +146,17 @@ func (n *NatsStreamClient) Publish(ctx context.Context, subject string, payload 
 	if err := n.Connection.LastError(); err != nil {
 		return err
 	}
-	log.Debugf("Published to [%s]: []'%s']", subject, payload)
+	log.Infof("Published to [%s]: []'%s']", subject, payload)
 	return nil
 }
 
 func (n *NatsStreamClient) Get(ctx context.Context, subject string, numberOfMessages int, consumerName string) ([][]byte, error) {
+	log.Infof("get %d messages from %s consumername %s", numberOfMessages, subject, consumerName)
+
 	rtn := [][]byte{}
 
 	filter := n.convertSubjectsToUnique([]string{subject})[0]
+	log.Infof("filter: %s", filter)
 	c1, err := n.JS.CreateOrUpdateConsumer(ctx, n.streamName, jetstream.ConsumerConfig{
 		Name:          consumerName,
 		FilterSubject: filter,
@@ -168,7 +171,7 @@ func (n *NatsStreamClient) Get(ctx context.Context, subject string, numberOfMess
 		log.Error("failed to fetch messages")
 		return rtn, err
 	}
-
+	log.Infof("got %d messages", len(batch.Messages()))
 	for m := range batch.Messages() {
 		err := m.Ack()
 		if err != nil {
