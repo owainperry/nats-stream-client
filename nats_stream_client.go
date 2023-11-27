@@ -17,22 +17,32 @@ type NatsStreamClient struct {
 	streamName string
 }
 
+//	Create a NatStreamClient without access to the connection or jetstream	
+func NatsStreamClientFactory(natsUri string, streamName string) (NatsStreamClient, error) {
+	var err error
+	var rtn NatsStreamClient
+
+	nc, err := nats.Connect(natsUri)
+	if err != nil {
+		return rtn, err
+	}
+	defer nc.Close()
+	defer nc.Drain()
+
+	js, err := jetstream.New(nc)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	rtn, err = NewNatsStreamClient(nc, js, streamName)
+	return rtn, err
+}
+
 func NewNatsStreamClient(conn *nats.Conn, js jetstream.JetStream, streamName string) (NatsStreamClient, error) {
 	var err error
 	var rtn NatsStreamClient
 
-	// nc, err := nats.Connect(natsUri)
-	// if err != nil {
-	// 	return rtn, err
-	// }
-
-	// js, err := jetstream.New(nc)
-	// if err != nil {
-	// 	return rtn, err
-	// }
-
 	rtn = NatsStreamClient{
-		// NatsUri:    natsUri,
 		Connection: conn,
 		JS:         js,
 		streamName: streamName,
