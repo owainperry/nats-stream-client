@@ -59,16 +59,20 @@ func NewNatsStreamClient(conn *nats.Conn, js jetstream.JetStream, streamName str
 func (n *NatsStreamClient) streamExists(ctx context.Context, js jetstream.JetStream, streamName string) bool {
 
 	list := js.ListStreams(ctx)
+
 	for v := range list.Info() {
+		log.Infof("existing stream: %s", v.Config.Name)
 		if v.Config.Name == streamName {
+			log.Info("stream Exists: true")
 			return true
 		}
 	}
-
+	log.Info("stream Exists: false")
 	return false
 }
 
 func (n *NatsStreamClient) appendSubjectToStream(ctx context.Context, js jetstream.JetStream, streamName string, subject string) error {
+	log.Infof("appendSubjectToStream subject: %s stream: %s", subject, streamName)
 	stream, err := js.Stream(ctx, streamName)
 	if err != nil {
 		return err
@@ -92,10 +96,10 @@ func (n *NatsStreamClient) appendSubjectToStream(ctx context.Context, js jetstre
 		log.Infof("update the stream %s subjects with %s", streamName, subject)
 		_, err = js.CreateOrUpdateStream(ctx, cfg)
 		if err != nil {
-			log.Infof("%s", err)
+			log.Infof("error updating stream: %s", err)
 			return err
 		}
-		log.Info("updated stream in theory")
+		log.Info("updated stream")
 	}
 	return nil
 }
@@ -119,7 +123,7 @@ func (n *NatsStreamClient) convertSubjectsToUnique(subjects []string) []string {
 }
 
 func (n *NatsStreamClient) createStream(ctx context.Context, subjects []string) error {
-
+	log.Infof("create the stream %v", subjects)
 	if !n.streamExists(ctx, n.JS, n.streamName) {
 		cfg := jetstream.StreamConfig{
 			Name:      n.streamName,
