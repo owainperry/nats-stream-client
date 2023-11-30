@@ -196,7 +196,7 @@ func (n *NatsStreamClient) Get(ctx context.Context, subject string, numberOfMess
 		log.Error("failed to fetch messages")
 		return rtn, err
 	}
-	log.Infof("got %d messages", len(batch.Messages()))
+	//log.Infof("got %d messages", len(batch.Messages()))
 	for m := range batch.Messages() {
 		err := m.Ack()
 		if err != nil {
