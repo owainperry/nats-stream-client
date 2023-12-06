@@ -10,6 +10,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type NatsStreamClientInterface interface {
+	// streamExists(ctx context.Context, js jetstream.JetStream, streamName string) bool
+	// appendSubjectToStream(ctx context.Context, js jetstream.JetStream, streamName string, subject string) error
+	// subjectExists(config jetstream.StreamConfig, subject string) bool
+	// convertSubjectsToUnique(subjects []string)
+	// createStream(ctx context.Context, subjects []string)
+	Publish(ctx context.Context, subject string, payload []byte) error
+	Get(ctx context.Context, subject string, numberOfMessages int, consumerName string) ([][]byte, error)
+}
+
 type NatsStreamClient struct {
 	NatsUri    string
 	Connection *nats.Conn
